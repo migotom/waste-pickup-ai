@@ -18,6 +18,8 @@ używane lokalnie w Gminie Działdowo.
 
 ## Instalacja przez HACS
 
+[![Dodaj repozytorium w HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=migotom&repository=waste-pickup-ai&category=integration)
+
 1. HACS -> menu -> **Custom repositories**.
 2. Dodaj repozytorium `https://github.com/migotom/waste-pickup-ai`.
 3. Wybierz typ **Integration**.
@@ -39,6 +41,7 @@ używane lokalnie w Gminie Działdowo.
 - `sensor.waste_next_pickup` - najbliższy odbiór.
 - `sensor.waste_category_pickups` - zbiorcze dane per kategoria.
 - Sensory per kategoria, np. `Odpady: Papier`, z liczbą dni do najbliższego odbioru.
+  Można dodać je na ekran główny HA jako kafelki informujące, za ile dni będzie odbiór danej frakcji.
 - `sensor.waste_schedule_status` - status harmonogramu.
 
 ## Wymagania i prywatność

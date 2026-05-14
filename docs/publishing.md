@@ -34,6 +34,14 @@ Users can add the public GitHub URL in HACS:
 HACS -> Custom repositories -> URL -> Integration -> Add
 ```
 
+Public link for residents:
+
+```text
+https://my.home-assistant.io/redirect/hacs_repository/?owner=migotom&repository=waste-pickup-ai&category=integration
+```
+
+Use this as the primary sharing path for Gmina Działdowo users. It opens the HACS repository flow directly and avoids asking users to copy paths manually.
+
 ## HACS Default Catalog
 
 For default HACS inclusion, the repository must remain public and hosted on GitHub. It should have:
@@ -46,3 +54,12 @@ For default HACS inclusion, the repository must remain public and hosted on GitH
 - passing Hassfest,
 - at least one GitHub release,
 - repository description, topics, and issues enabled.
+
+Submission steps:
+
+1. Keep releases versioned; do not rely on the default branch for user installs.
+2. Add the integration to `home-assistant/brands` if HACS default inclusion is desired.
+3. Fork `hacs/default`.
+4. Add `migotom/waste-pickup-ai` alphabetically to `integration`.
+5. Open a PR from a branch owned by the repository owner or a major contributor.
+6. Fill the HACS PR template completely and wait for validation.
