@@ -11,6 +11,7 @@ from custom_components.waste_pickup_ai.schedule import (
     due_pickup_notifications,
     month_key,
     next_pickup,
+    next_pickups_by_category,
     normalize_category,
     normalize_schedule,
     parse_days_cell,
@@ -122,6 +123,47 @@ class WastePickupScheduleTest(unittest.TestCase):
         self.assertEqual(events[0]["categories"], ["Bioodpady", "Papier"])
         self.assertNotIn("Popiół", events[0]["categories"])
         self.assertEqual(next_pickup(schedule, date(2026, 1, 9))["date"], "2026-01-29")
+
+    def test_next_pickups_by_category_reports_date_and_days_until(self) -> None:
+        schedule = normalize_schedule(
+            {
+                "year": 2026,
+                "warnings": [],
+                "rows": [
+                    {
+                        "category_raw": "Papier",
+                        "category_key": "papier",
+                        "confidence": 1,
+                        "warnings": [],
+                        "days_by_month": {"I": "8, 29"},
+                    },
+                    {
+                        "category_raw": "Szkło",
+                        "category_key": "szklo",
+                        "confidence": 1,
+                        "warnings": [],
+                        "days_by_month": {"I": "3"},
+                    },
+                    {
+                        "category_raw": "Popiół",
+                        "category_key": "popiol",
+                        "confidence": 1,
+                        "warnings": [],
+                        "days_by_month": {"I": "8"},
+                    },
+                ],
+            }
+        )
+
+        by_category = {
+            item["category_key"]: item
+            for item in next_pickups_by_category(schedule, date(2026, 1, 7))
+        }
+        self.assertEqual(by_category["papier"]["date"], "2026-01-08")
+        self.assertEqual(by_category["papier"]["days_until"], 1)
+        self.assertEqual(by_category["papier"]["future_dates"], ["2026-01-08", "2026-01-29"])
+        self.assertIsNone(by_category["szklo"]["date"])
+        self.assertNotIn("popiol", by_category)
 
     def test_set_schedule_cell_updates_draft_shape(self) -> None:
         schedule = normalize_schedule(

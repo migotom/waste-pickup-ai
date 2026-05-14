@@ -10,7 +10,8 @@ This is not intended to be a generic worldwide waste-management integration. It 
 - Extract table data with OpenAI Responses API and structured JSON output.
 - Verify and correct the interpreted month/day table before activation.
 - Create `calendar.waste_pickups` with all-day pickup events.
-- Create `sensor.waste_next_pickup` and `sensor.waste_schedule_status`.
+- Create `sensor.waste_next_pickup`, `sensor.waste_category_pickups`, per-category pickup sensors,
+  and `sensor.waste_schedule_status`.
 - Send reminders one day before pickup in the morning and evening.
 - Exclude `Popiol` / `Popiół` from reminder notifications.
 - Remind the user on January 1 to scan the new yearly schedule.
@@ -59,6 +60,13 @@ Optional:
 - January 1 scan reminder time, default `09:00`.
 
 If no notify service is configured, reminders use Home Assistant persistent notifications.
+
+## Dashboard Entities
+
+After activating a schedule, the integration creates category-specific sensors such as `sensor.odpady_papier`.
+Their state is the number of days until the next pickup, with attributes for the exact date and remaining
+future dates. `sensor.waste_category_pickups` also exposes a full `pickups` attribute for cards/templates that
+need all categories in one entity.
 
 ## Development Checks
 

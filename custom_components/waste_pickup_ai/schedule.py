@@ -314,6 +314,72 @@ def next_pickup(schedule: Mapping[str, Any] | None, today: date | None = None) -
     return None
 
 
+def next_pickups_by_category(
+    schedule: Mapping[str, Any] | None,
+    today: date | None = None,
+) -> list[dict[str, Any]]:
+    """Return the next pickup date for each notification-enabled category."""
+    today = today or date.today()
+    if not schedule or not isinstance(schedule.get("year"), int):
+        return []
+
+    year = int(schedule["year"])
+    grouped: dict[str, dict[str, Any]] = {}
+    for row in schedule.get("rows", []) or []:
+        category = str(row.get("category_raw") or row.get("category_key") or "").strip()
+        category_key = normalize_category(row.get("category_key") or category)
+        if not category_key:
+            continue
+        notify_allowed = should_notify_category(f"{category_key} {category}")
+        notify = bool(row.get("notify", notify_allowed)) and notify_allowed
+        if not notify:
+            continue
+
+        item = grouped.setdefault(
+            category_key,
+            {
+                "category": category or category_key,
+                "category_key": category_key,
+                "future_dates": [],
+            },
+        )
+        for raw_month, raw_days in (row.get("days_by_month") or {}).items():
+            try:
+                month = month_number(raw_month)
+            except ValueError:
+                continue
+            for day in parse_days_cell(raw_days):
+                try:
+                    event_date = date(year, month, day)
+                except ValueError:
+                    continue
+                if event_date >= today:
+                    item["future_dates"].append(event_date.isoformat())
+
+    results = []
+    for item in grouped.values():
+        future_dates = sorted(set(item["future_dates"]))
+        pickup_date = future_dates[0] if future_dates else None
+        days_until = (date.fromisoformat(pickup_date) - today).days if pickup_date else None
+        results.append(
+            {
+                **item,
+                "date": pickup_date,
+                "days_until": days_until,
+                "future_dates": future_dates,
+            }
+        )
+
+    return sorted(
+        results,
+        key=lambda item: (
+            item["date"] is None,
+            item["date"] or "9999-12-31",
+            normalize_category(item["category"]),
+        ),
+    )
+
+
 def parse_time_value(value: Any, default: str) -> time:
     """Parse HH:MM or HH:MM:SS to a time value."""
     text = str(value or default).strip()

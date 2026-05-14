@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import base64
 from collections.abc import Callable
-from datetime import datetime
+from datetime import datetime, time
 import logging
 import mimetypes
 from pathlib import Path
@@ -50,6 +50,7 @@ from .schedule import (
     build_pickup_events,
     due_pickup_notifications,
     next_pickup,
+    next_pickups_by_category,
     parse_time_value,
     schedule_status,
 )
@@ -99,6 +100,7 @@ class WastePickupRuntime:
             self.morning_time,
             self.evening_time,
             self.annual_scan_reminder_time,
+            time(0, 0),
         }:
             self._register_time_listener(at_time)
 
@@ -275,6 +277,9 @@ class WastePickupRuntime:
                     tag=key,
                 )
                 await self.store.async_mark_sent(key)
+
+        if now.hour == 0 and now.minute == 0:
+            self.async_notify_updated()
 
     def _register_time_listener(self, at_time: Any) -> None:
         @callback
@@ -463,6 +468,7 @@ class WastePickupScheduleView(HomeAssistantView):
                 "active_schedule": active_schedule,
                 "status": schedule_status(active_schedule),
                 "next_pickup": next_pickup(active_schedule),
+                "category_pickups": next_pickups_by_category(active_schedule),
                 "events": build_pickup_events(active_schedule),
                 "options": {
                     "notify_targets": runtime.notify_targets,
