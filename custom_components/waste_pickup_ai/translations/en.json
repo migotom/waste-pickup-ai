@@ -8,13 +8,13 @@
         "data": {
           "openai_api_key": "OpenAI API key",
           "openai_model": "OpenAI model",
-          "notify_targets": "Notify services",
+          "notify_targets": "Notification targets",
           "morning_time": "Morning reminder time",
           "evening_time": "Evening reminder time",
           "annual_scan_reminder_time": "Annual scan reminder time"
         },
         "data_description": {
-          "notify_targets": "Comma-separated notify service names, for example notify.mobile_app_iphone or mobile_app_iphone.",
+          "notify_targets": "Select one or more notify services. Leave empty to use Home Assistant persistent notifications.",
           "morning_time": "HH:MM, local Home Assistant time.",
           "evening_time": "HH:MM, local Home Assistant time.",
           "annual_scan_reminder_time": "HH:MM, used on January 1."
@@ -33,13 +33,13 @@
         "data": {
           "openai_api_key": "OpenAI API key",
           "openai_model": "OpenAI model",
-          "notify_targets": "Notify services",
+          "notify_targets": "Notification targets",
           "morning_time": "Morning reminder time",
           "evening_time": "Evening reminder time",
           "annual_scan_reminder_time": "Annual scan reminder time"
         },
         "data_description": {
-          "notify_targets": "Comma-separated notify service names, for example notify.mobile_app_iphone or mobile_app_iphone.",
+          "notify_targets": "Select one or more notify services. Leave empty to use Home Assistant persistent notifications.",
           "morning_time": "HH:MM, local Home Assistant time.",
           "evening_time": "HH:MM, local Home Assistant time.",
           "annual_scan_reminder_time": "HH:MM, used on January 1."

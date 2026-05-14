@@ -45,7 +45,7 @@ Required:
 Optional:
 
 - OpenAI model, default `gpt-5.5`.
-- Comma-separated notify services, for example `notify.mobile_app_iphone`.
+- Notification targets selected from available `notify.*` services, for example `notify.mobile_app_iphone`.
 - Morning reminder time, default `08:00`.
 - Evening reminder time, default `20:00`.
 - January 1 scan reminder time, default `09:00`.

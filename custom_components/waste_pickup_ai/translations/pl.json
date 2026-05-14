@@ -8,13 +8,13 @@
         "data": {
           "openai_api_key": "Klucz API OpenAI",
           "openai_model": "Model OpenAI",
-          "notify_targets": "Usługi powiadomień",
+          "notify_targets": "Cele powiadomień",
           "morning_time": "Godzina porannego przypomnienia",
           "evening_time": "Godzina wieczornego przypomnienia",
           "annual_scan_reminder_time": "Godzina corocznego przypomnienia o skanie"
         },
         "data_description": {
-          "notify_targets": "Lista usług notify po przecinku, na przykład notify.mobile_app_iphone albo mobile_app_iphone.",
+          "notify_targets": "Wybierz jedną lub więcej usług notify. Zostaw puste, aby używać powiadomień trwałych Home Assistanta.",
           "morning_time": "HH:MM, lokalny czas Home Assistanta.",
           "evening_time": "HH:MM, lokalny czas Home Assistanta.",
           "annual_scan_reminder_time": "HH:MM, używane 1 stycznia."
@@ -33,13 +33,13 @@
         "data": {
           "openai_api_key": "Klucz API OpenAI",
           "openai_model": "Model OpenAI",
-          "notify_targets": "Usługi powiadomień",
+          "notify_targets": "Cele powiadomień",
           "morning_time": "Godzina porannego przypomnienia",
           "evening_time": "Godzina wieczornego przypomnienia",
           "annual_scan_reminder_time": "Godzina corocznego przypomnienia o skanie"
         },
         "data_description": {
-          "notify_targets": "Lista usług notify po przecinku, na przykład notify.mobile_app_iphone albo mobile_app_iphone.",
+          "notify_targets": "Wybierz jedną lub więcej usług notify. Zostaw puste, aby używać powiadomień trwałych Home Assistanta.",
           "morning_time": "HH:MM, lokalny czas Home Assistanta.",
           "evening_time": "HH:MM, lokalny czas Home Assistanta.",
           "annual_scan_reminder_time": "HH:MM, używane 1 stycznia."

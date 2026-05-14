@@ -7,7 +7,7 @@ from typing import Any
 import voluptuous as vol
 
 from homeassistant import config_entries
-from homeassistant.core import callback
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers import selector
 
 from .const import (
@@ -45,7 +45,9 @@ class WastePickupAIConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     data={
                         CONF_OPENAI_API_KEY: user_input[CONF_OPENAI_API_KEY],
                         CONF_OPENAI_MODEL: user_input.get(CONF_OPENAI_MODEL) or DEFAULT_OPENAI_MODEL,
-                        CONF_NOTIFY_TARGETS: user_input.get(CONF_NOTIFY_TARGETS, ""),
+                        CONF_NOTIFY_TARGETS: _normalize_notify_targets_input(
+                            user_input.get(CONF_NOTIFY_TARGETS)
+                        ),
                         CONF_MORNING_TIME: user_input.get(CONF_MORNING_TIME) or DEFAULT_MORNING_TIME,
                         CONF_EVENING_TIME: user_input.get(CONF_EVENING_TIME) or DEFAULT_EVENING_TIME,
                         CONF_ANNUAL_SCAN_REMINDER_TIME: user_input.get(
@@ -57,7 +59,7 @@ class WastePickupAIConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         return self.async_show_form(
             step_id="user",
-            data_schema=_schema(user_input),
+            data_schema=_schema(self.hass, user_input),
             errors=errors,
         )
 
@@ -81,16 +83,24 @@ class WastePickupAIOptionsFlow(config_entries.OptionsFlow):
         if user_input is not None:
             errors = _validate_input(user_input)
             if not errors:
-                return self.async_create_entry(title="", data=user_input)
+                return self.async_create_entry(
+                    title="",
+                    data={
+                        **user_input,
+                        CONF_NOTIFY_TARGETS: _normalize_notify_targets_input(
+                            user_input.get(CONF_NOTIFY_TARGETS)
+                        ),
+                    },
+                )
 
         return self.async_show_form(
             step_id="init",
-            data_schema=_schema(current if user_input is None else user_input),
+            data_schema=_schema(self.hass, current if user_input is None else user_input),
             errors=errors,
         )
 
 
-def _schema(defaults: dict[str, Any] | None = None) -> vol.Schema:
+def _schema(hass: HomeAssistant | None, defaults: dict[str, Any] | None = None) -> vol.Schema:
     defaults = defaults or {}
     return vol.Schema(
         {
@@ -106,8 +116,16 @@ def _schema(defaults: dict[str, Any] | None = None) -> vol.Schema:
             ): str,
             vol.Optional(
                 CONF_NOTIFY_TARGETS,
-                default=defaults.get(CONF_NOTIFY_TARGETS, ""),
-            ): str,
+                default=_normalize_notify_targets_input(defaults.get(CONF_NOTIFY_TARGETS)),
+            ): selector.SelectSelector(
+                selector.SelectSelectorConfig(
+                    options=_notify_service_options(hass),
+                    multiple=True,
+                    custom_value=True,
+                    mode=selector.SelectSelectorMode.DROPDOWN,
+                    sort=True,
+                )
+            ),
             vol.Optional(
                 CONF_MORNING_TIME,
                 default=defaults.get(CONF_MORNING_TIME, DEFAULT_MORNING_TIME),
@@ -141,3 +159,37 @@ def _validate_input(user_input: dict[str, Any]) -> dict[str, str]:
         except ValueError:
             errors[key] = "invalid_time"
     return errors
+
+
+def _notify_service_options(hass: HomeAssistant | None) -> list[selector.SelectOptionDict]:
+    """Return available notify services for a multi-select config flow field."""
+    if hass is None:
+        return []
+    services = hass.services.async_services().get("notify", {})
+    return [
+        {"value": service, "label": f"notify.{service}"}
+        for service in sorted(services)
+    ]
+
+
+def _normalize_notify_targets_input(value: Any) -> list[str]:
+    """Normalize config flow notify selector output to notify service names."""
+    if value is None:
+        return []
+    if isinstance(value, str):
+        raw_items = [item for chunk in value.splitlines() for item in chunk.split(",")]
+    elif isinstance(value, list):
+        raw_items = [str(item) for item in value]
+    else:
+        raw_items = [str(value)]
+
+    targets: list[str] = []
+    for item in raw_items:
+        target = item.strip()
+        if not target:
+            continue
+        if target.startswith("notify."):
+            target = target.removeprefix("notify.")
+        if target not in targets:
+            targets.append(target)
+    return targets
