@@ -71,9 +71,6 @@ class WastePickupCalendar(CalendarEntity):
     @callback
     def _handle_update(self) -> None:
         self.async_write_ha_state()
-        update_event_listeners = getattr(self, "async_update_event_listeners", None)
-        if callable(update_event_listeners):
-            update_event_listeners()
 
 
 def _calendar_event(event: dict[str, Any]) -> CalendarEvent:
