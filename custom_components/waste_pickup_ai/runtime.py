@@ -163,7 +163,10 @@ class WastePickupRuntime:
     def async_notify_updated(self) -> None:
         """Notify entities that stored data changed."""
         for listener in list(self._update_listeners):
-            listener()
+            try:
+                listener()
+            except Exception:  # noqa: BLE001
+                _LOGGER.exception("Failed to update a Waste Pickup AI entity listener")
 
     async def async_scan_image_data_url(
         self,
