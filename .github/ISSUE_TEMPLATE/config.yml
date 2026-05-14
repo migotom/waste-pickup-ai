@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Instalacja przez HACS
+    url: https://github.com/migotom/waste-pickup-ai#instalacja-przez-hacs
+    about: Zacznij tutaj, jeśli potrzebujesz instrukcji instalacji.
+  - name: Dodaj repozytorium w HACS
+    url: https://my.home-assistant.io/redirect/hacs_repository/?owner=migotom&repository=waste-pickup-ai&category=integration
+    about: Otwiera dodawanie repozytorium w Home Assistancie.

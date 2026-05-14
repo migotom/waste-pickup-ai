@@ -49,6 +49,7 @@ używane lokalnie w Gminie Działdowo.
 - Home Assistant `2025.5.0` lub nowszy.
 - Klucz OpenAI API zapisany w konfiguracji HA.
 - Obraz jest wysyłany do OpenAI tylko podczas ręcznego skanu; integracja nie wykonuje OCR w tle.
+- Licencja: MIT.
 
 ## Development
 

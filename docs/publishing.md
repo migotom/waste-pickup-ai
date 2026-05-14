@@ -53,7 +53,9 @@ For default HACS inclusion, the repository must remain public and hosted on GitH
 - passing HACS Action,
 - passing Hassfest,
 - at least one GitHub release,
-- repository description, topics, and issues enabled.
+- repository description, topics, and issues enabled,
+- license file,
+- issue templates for bug reports and feature requests.
 
 Submission steps:
 

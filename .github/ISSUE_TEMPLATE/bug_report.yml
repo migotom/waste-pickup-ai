@@ -1,0 +1,62 @@
+name: Błąd integracji
+description: Zgłoś problem z działaniem integracji w Home Assistancie.
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Użyj tego formularza dla błędów działania integracji: brak encji, błąd konfiguracji, problem z panelem, powiadomieniami albo kalendarzem.
+
+        Nie wklejaj klucza OpenAI API ani prywatnych danych z Home Assistanta.
+  - type: textarea
+    id: description
+    attributes:
+      label: Co się stało?
+      description: Opisz problem i czego oczekiwałeś.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Kroki odtworzenia
+      description: Jak można odtworzyć problem?
+      placeholder: |
+        1. Otwieram panel Odpady Działdowo
+        2. Klikam ...
+        3. Widzę ...
+    validations:
+      required: true
+  - type: input
+    id: integration-version
+    attributes:
+      label: Wersja integracji
+      placeholder: v0.1.10
+    validations:
+      required: true
+  - type: input
+    id: home-assistant-version
+    attributes:
+      label: Wersja Home Assistanta
+      placeholder: 2026.4.3
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logi Home Assistanta
+      description: Wklej istotny fragment z Settings -> System -> Logs. Usuń tokeny, klucze API i prywatne dane.
+      render: shell
+    validations:
+      required: false
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Sprawdzenie
+      options:
+        - label: Używam najnowszego release z HACS, a nie gałęzi main.
+          required: true
+        - label: Po aktualizacji integracji zrobiłem restart Home Assistanta.
+          required: true
+        - label: Sprawdziłem istniejące otwarte i zamknięte zgłoszenia.
+          required: true

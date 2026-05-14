@@ -1,0 +1,65 @@
+name: Problem ze skanem harmonogramu
+description: Zgłoś błędny odczyt zdjęcia albo tabeli odbioru odpadów.
+title: "[Scan]: "
+labels: ["scan", "ocr"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Użyj tego formularza, gdy skan działa, ale odczytane terminy, miesiące albo kategorie są niepoprawne.
+
+        Jeśli załączasz zdjęcie harmonogramu, upewnij się, że nie zawiera prywatnych danych. Nie wklejaj klucza OpenAI API.
+  - type: input
+    id: schedule-year
+    attributes:
+      label: Rok harmonogramu
+      placeholder: "2026"
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Co zostało źle odczytane?
+      description: Podaj kategorię, miesiąc i dzień, który wymaga korekty.
+      placeholder: "Papier / maj: model odczytał 21, powinno być 22."
+    validations:
+      required: true
+  - type: textarea
+    id: expected-table
+    attributes:
+      label: Poprawne dane
+      description: Wklej poprawne wartości dla problematycznych komórek lub krótki fragment tabeli.
+    validations:
+      required: true
+  - type: input
+    id: integration-version
+    attributes:
+      label: Wersja integracji
+      placeholder: v0.1.10
+    validations:
+      required: true
+  - type: input
+    id: model
+    attributes:
+      label: Model OpenAI
+      placeholder: gpt-5.5
+    validations:
+      required: false
+  - type: textarea
+    id: warnings
+    attributes:
+      label: Ostrzeżenia z panelu
+      description: Wklej ostrzeżenia lub błędy widoczne w panelu Odpady Działdowo.
+    validations:
+      required: false
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Sprawdzenie
+      options:
+        - label: Zdjęcie jest czytelne i obejmuje całą tabelę.
+          required: true
+        - label: Problem dotyczy harmonogramu Gminy Działdowo.
+          required: true
+        - label: Wiem, że pojedyncze komórki można poprawić ręcznie w panelu przed nadpisaniem kalendarza.
+          required: true
