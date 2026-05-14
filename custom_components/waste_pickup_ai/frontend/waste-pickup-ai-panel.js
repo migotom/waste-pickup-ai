@@ -120,6 +120,35 @@ class WastePickupAIPanel extends HTMLElement {
     }
   }
 
+  async _saveOptions() {
+    const labels = getLabels(this._hass);
+    const checkedTargets = Array.from(
+      this.shadowRoot.querySelectorAll("input[name='notify-target']:checked")
+    ).map((input) => input.value);
+    const customTargets = splitTargets(this.shadowRoot.querySelector("#custom-notify")?.value || "");
+    const notifyTargets = uniqueValues([...checkedTargets, ...customTargets]);
+
+    this._loading = true;
+    this._error = "";
+    this._message = "";
+    this._render();
+    try {
+      await this._hass.callApi("POST", "waste_pickup_ai/options", {
+        notify_targets: notifyTargets,
+        morning_time: this.shadowRoot.querySelector("#morning-time")?.value,
+        evening_time: this.shadowRoot.querySelector("#evening-time")?.value,
+        annual_scan_reminder_time: this.shadowRoot.querySelector("#annual-time")?.value,
+      });
+      this._message = labels.optionsSaved;
+      await this._load();
+    } catch (err) {
+      this._error = this._formatError(err);
+    } finally {
+      this._loading = false;
+      this._render();
+    }
+  }
+
   _draft() {
     return this._state && this._state.draft_schedule;
   }
@@ -145,6 +174,8 @@ class WastePickupAIPanel extends HTMLElement {
     const rows = (draft && draft.rows) || [];
     const events = (this._state && this._state.events) || [];
     const nextPickup = this._state && this._state.next_pickup;
+    const options = (this._state && this._state.options) || {};
+    const availableNotifyTargets = (this._state && this._state.available_notify_targets) || [];
 
     this.shadowRoot.innerHTML = `
       <style>
@@ -242,6 +273,43 @@ class WastePickupAIPanel extends HTMLElement {
           opacity: 0.55;
           cursor: progress;
         }
+        .settings {
+          margin-top: 16px;
+          padding: 14px;
+          border: 1px solid var(--divider-color);
+          border-radius: 8px;
+          background: var(--card-background-color);
+        }
+        .settings-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+          gap: 10px;
+          align-items: end;
+        }
+        .notify-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+          gap: 8px;
+          margin: 10px 0;
+        }
+        .checkbox {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          min-height: 34px;
+          padding: 7px 9px;
+          border: 1px solid var(--divider-color);
+          border-radius: 6px;
+          color: var(--primary-text-color);
+          background: var(--primary-background-color);
+          font-size: 13px;
+        }
+        .checkbox input {
+          min-height: auto;
+          width: 16px;
+          height: 16px;
+          padding: 0;
+        }
         .notice {
           margin: 14px 0 0;
           padding: 10px 12px;
@@ -311,6 +379,7 @@ class WastePickupAIPanel extends HTMLElement {
           .wrap { padding: 16px; }
           header { align-items: flex-start; flex-direction: column; }
           .toolbar { grid-template-columns: 1fr; }
+          .settings-grid { grid-template-columns: 1fr; }
           button { width: 100%; }
         }
       </style>
@@ -347,6 +416,8 @@ class WastePickupAIPanel extends HTMLElement {
           </button>
         </div>
 
+        ${renderNotificationOptions(options, availableNotifyTargets, labels)}
+
         ${this._loading ? `<div class="notice">${labels.processing}</div>` : ""}
         ${this._message ? `<div class="notice">${escapeHtml(this._message)}</div>` : ""}
         ${this._error ? `<div class="error">${escapeHtml(this._error)}</div>` : ""}
@@ -363,10 +434,68 @@ class WastePickupAIPanel extends HTMLElement {
     this.shadowRoot.querySelector("#scan")?.addEventListener("click", () => this._scan());
     this.shadowRoot.querySelector("#activate")?.addEventListener("click", () => this._activate());
     this.shadowRoot.querySelector("#test")?.addEventListener("click", () => this._testNotification());
+    this.shadowRoot.querySelector("#save-options")?.addEventListener("click", () => this._saveOptions());
     this.shadowRoot.querySelectorAll("td.month input").forEach((input) => {
       input.addEventListener("change", () => this._saveCell(input));
     });
   }
+}
+
+function renderNotificationOptions(options, availableNotifyTargets, labels) {
+  const selected = Array.isArray(options.notify_targets) ? options.notify_targets : [];
+  const known = [...availableNotifyTargets];
+  selected.forEach((target) => {
+    if (!known.some((item) => item.value === target)) {
+      known.push({ value: target, label: `notify.${target}` });
+    }
+  });
+  const knownValues = new Set(known.map((item) => item.value));
+  const customTargets = selected.filter((target) => !knownValues.has(target)).join(", ");
+  return `
+    <section class="settings">
+      <h2>${labels.notifications}</h2>
+      <div class="muted">${labels.notificationTargetsHint}</div>
+      ${
+        known.length
+          ? `<div class="notify-grid">
+              ${known.map((item) => `
+                <label class="checkbox">
+                  <input
+                    type="checkbox"
+                    name="notify-target"
+                    value="${escapeHtml(item.value)}"
+                    ${selected.includes(item.value) ? "checked" : ""}
+                  />
+                  ${escapeHtml(item.label)}
+                </label>
+              `).join("")}
+            </div>`
+          : `<p class="muted">${labels.noNotifyServices}</p>`
+      }
+      <div class="settings-grid">
+        <label>
+          ${labels.customNotifyTargets}
+          <input id="custom-notify" value="${escapeHtml(customTargets)}" placeholder="mobile_app_iphone" />
+        </label>
+        <label>
+          ${labels.morningTime}
+          <input id="morning-time" type="time" value="${escapeHtml(options.morning_time || "08:00")}" />
+        </label>
+        <label>
+          ${labels.eveningTime}
+          <input id="evening-time" type="time" value="${escapeHtml(options.evening_time || "20:00")}" />
+        </label>
+        <label>
+          ${labels.annualTime}
+          <input id="annual-time" type="time" value="${escapeHtml(options.annual_scan_reminder_time || "09:00")}" />
+        </label>
+        <button id="save-options" class="secondary">
+          <ha-icon icon="mdi:content-save-outline"></ha-icon>
+          ${labels.saveOptions}
+        </button>
+      </div>
+    </section>
+  `;
 }
 
 function renderTable(rows, labels) {
@@ -424,6 +553,15 @@ const STRINGS = {
     enterYear: "Enter the schedule year.",
     scheduleActive: "Schedule activated.",
     testSent: "Test sent.",
+    notifications: "Notifications",
+    notificationTargetsHint: "Select Home Assistant notify services that should receive reminders.",
+    noNotifyServices: "No notify services found. Add a custom service name below if needed.",
+    customNotifyTargets: "Custom notify services",
+    morningTime: "Morning reminder",
+    eveningTime: "Evening reminder",
+    annualTime: "January 1 reminder",
+    saveOptions: "Save options",
+    optionsSaved: "Notification options saved.",
     unknownError: "Unknown error.",
   },
   pl: {
@@ -449,6 +587,15 @@ const STRINGS = {
     enterYear: "Podaj rok harmonogramu.",
     scheduleActive: "Harmonogram aktywny.",
     testSent: "Wysłano test.",
+    notifications: "Powiadomienia",
+    notificationTargetsHint: "Wybierz usługi notify Home Assistanta, które mają dostawać przypomnienia.",
+    noNotifyServices: "Nie znaleziono usług notify. W razie potrzeby dopisz nazwę usługi ręcznie niżej.",
+    customNotifyTargets: "Własne usługi notify",
+    morningTime: "Poranne przypomnienie",
+    eveningTime: "Wieczorne przypomnienie",
+    annualTime: "Przypomnienie 1 stycznia",
+    saveOptions: "Zapisz opcje",
+    optionsSaved: "Zapisano opcje powiadomień.",
     unknownError: "Nieznany błąd.",
   },
 };
@@ -490,6 +637,22 @@ function readFileAsDataURL(file) {
     reader.onload = () => resolve(reader.result);
     reader.onerror = () => reject(reader.error);
     reader.readAsDataURL(file);
+  });
+}
+
+function splitTargets(value) {
+  return String(value || "")
+    .split(/[\n,]+/)
+    .map((item) => item.trim().replace(/^notify\./, ""))
+    .filter(Boolean);
+}
+
+function uniqueValues(values) {
+  const seen = new Set();
+  return values.filter((value) => {
+    if (seen.has(value)) return false;
+    seen.add(value);
+    return true;
   });
 }
 

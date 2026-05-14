@@ -60,6 +60,8 @@ Optional:
 - January 1 scan reminder time, default `09:00`.
 
 If no notify service is configured, reminders use Home Assistant persistent notifications.
+Notification targets and reminder times can also be changed later from the **Odpady Działdowo**
+panel without re-running the integration setup flow.
 
 ## Dashboard Entities
 

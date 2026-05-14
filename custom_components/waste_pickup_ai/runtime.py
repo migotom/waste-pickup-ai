@@ -81,6 +81,11 @@ SET_CELL_SCHEMA = vol.Schema(
 
 ACTIVATE_SCHEDULE_SCHEMA = vol.Schema({vol.Optional("year"): cv.positive_int})
 SEND_TEST_NOTIFICATION_SCHEMA = vol.Schema({})
+OPTION_TIME_KEYS = {
+    CONF_MORNING_TIME: DEFAULT_MORNING_TIME,
+    CONF_EVENING_TIME: DEFAULT_EVENING_TIME,
+    CONF_ANNUAL_SCAN_REMINDER_TIME: DEFAULT_ANNUAL_SCAN_REMINDER_TIME,
+}
 
 
 class WastePickupRuntime:
@@ -96,6 +101,17 @@ class WastePickupRuntime:
     async def async_setup(self) -> None:
         """Load storage and start time listeners."""
         await self.store.async_load()
+        self._register_time_listeners()
+
+    async def async_unload(self) -> None:
+        """Unload runtime listeners."""
+        for unsub in self._unsubs:
+            unsub()
+        self._unsubs.clear()
+        self._update_listeners.clear()
+
+    def _register_time_listeners(self) -> None:
+        """Register notification and daily refresh listeners."""
         for at_time in {
             self.morning_time,
             self.evening_time,
@@ -104,12 +120,12 @@ class WastePickupRuntime:
         }:
             self._register_time_listener(at_time)
 
-    async def async_unload(self) -> None:
-        """Unload runtime listeners."""
+    def _reset_time_listeners(self) -> None:
+        """Re-register time listeners after option changes."""
         for unsub in self._unsubs:
             unsub()
         self._unsubs.clear()
-        self._update_listeners.clear()
+        self._register_time_listeners()
 
     @property
     def options(self) -> dict[str, Any]:
@@ -241,6 +257,27 @@ class WastePickupRuntime:
             tag="waste-pickup-ai-test",
         )
 
+    async def async_update_notification_options(self, payload: dict[str, Any]) -> dict[str, Any]:
+        """Update notification options from the Home Assistant panel."""
+        options = dict(self.entry.options)
+        if CONF_NOTIFY_TARGETS in payload:
+            options[CONF_NOTIFY_TARGETS] = parse_notify_targets(payload.get(CONF_NOTIFY_TARGETS))
+
+        changed_time = False
+        for key, default in OPTION_TIME_KEYS.items():
+            if key not in payload:
+                continue
+            parsed = parse_time_value(payload.get(key), default)
+            value = parsed.strftime("%H:%M")
+            changed_time = changed_time or value != self.options.get(key)
+            options[key] = value
+
+        self.hass.config_entries.async_update_entry(self.entry, options=options)
+        if changed_time:
+            self._reset_time_listeners()
+        self.async_notify_updated()
+        return notification_options_response(self)
+
     async def async_handle_time(self, now: datetime) -> None:
         """Handle scheduled notification checks."""
         active_schedule = self.store.data.get("active_schedule")
@@ -363,7 +400,8 @@ def parse_notify_targets(value: Any) -> list[str]:
             continue
         if target.startswith("notify."):
             target = target.removeprefix("notify.")
-        targets.append(target)
+        if target not in targets:
+            targets.append(target)
     return targets
 
 
@@ -379,6 +417,7 @@ async def _async_register_http(hass: HomeAssistant) -> None:
     hass.http.register_view(WastePickupScanView())
     hass.http.register_view(WastePickupCellView())
     hass.http.register_view(WastePickupActivateView())
+    hass.http.register_view(WastePickupOptionsView())
     hass.http.register_view(WastePickupTestNotificationView())
     frontend_dir = Path(__file__).parent / "frontend"
     await hass.http.async_register_static_paths(
@@ -470,13 +509,8 @@ class WastePickupScheduleView(HomeAssistantView):
                 "next_pickup": next_pickup(active_schedule),
                 "category_pickups": next_pickups_by_category(active_schedule),
                 "events": build_pickup_events(active_schedule),
-                "options": {
-                    "notify_targets": runtime.notify_targets,
-                    "morning_time": runtime.morning_time.strftime("%H:%M"),
-                    "evening_time": runtime.evening_time.strftime("%H:%M"),
-                    "annual_scan_reminder_time": runtime.annual_scan_reminder_time.strftime("%H:%M"),
-                    "model": runtime.openai_model,
-                },
+                "options": notification_options_response(runtime),
+                "available_notify_targets": notify_service_options(runtime.hass),
             }
         )
 
@@ -543,6 +577,28 @@ class WastePickupActivateView(HomeAssistantView):
         return self.json({"active_schedule": schedule, "events": build_pickup_events(schedule)})
 
 
+class WastePickupOptionsView(HomeAssistantView):
+    """Update notification options from the panel."""
+
+    url = f"/api/{DOMAIN}/options"
+    name = f"api:{DOMAIN}:options"
+    requires_admin = True
+
+    async def post(self, request: Any) -> Any:
+        runtime = get_runtime(request.app[KEY_HASS])
+        try:
+            payload = await request.json()
+            options = await runtime.async_update_notification_options(payload)
+        except (ValueError, HomeAssistantError) as err:
+            return self.json_message(str(err), status_code=400)
+        return self.json(
+            {
+                "options": options,
+                "available_notify_targets": notify_service_options(runtime.hass),
+            }
+        )
+
+
 class WastePickupTestNotificationView(HomeAssistantView):
     """Send a test notification."""
 
@@ -566,3 +622,20 @@ def _validate_image_data_url(data_url: str) -> None:
     estimated_size = int(len(encoded) * 0.75)
     if estimated_size > MAX_IMAGE_BYTES:
         raise HomeAssistantError("Plik obrazu jest za duży.")
+
+
+def notification_options_response(runtime: WastePickupRuntime) -> dict[str, Any]:
+    """Return panel-safe notification options."""
+    return {
+        "notify_targets": runtime.notify_targets,
+        "morning_time": runtime.morning_time.strftime("%H:%M"),
+        "evening_time": runtime.evening_time.strftime("%H:%M"),
+        "annual_scan_reminder_time": runtime.annual_scan_reminder_time.strftime("%H:%M"),
+        "model": runtime.openai_model,
+    }
+
+
+def notify_service_options(hass: HomeAssistant) -> list[dict[str, str]]:
+    """Return available notify services for the panel."""
+    services = hass.services.async_services().get("notify", {})
+    return [{"value": service, "label": f"notify.{service}"} for service in sorted(services)]
