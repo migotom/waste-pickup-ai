@@ -73,6 +73,7 @@ class WastePickupStore:
         schedule["activated_at"] = now_iso()
         self.data["active_schedule"] = schedule
         self.data["draft_schedule"] = schedule
+        self.data["sent_notifications"] = {}
         self.data["updated_at"] = now_iso()
         await self.async_save()
         return schedule
@@ -94,4 +95,3 @@ def _empty_data() -> dict[str, Any]:
         "sent_notifications": {},
         "updated_at": None,
     }
-

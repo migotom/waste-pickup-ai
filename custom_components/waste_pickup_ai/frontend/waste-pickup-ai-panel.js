@@ -424,6 +424,7 @@ class WastePickupAIPanel extends HTMLElement {
         ${renderWarnings(draft, status)}
 
         <h2>${labels.verification}</h2>
+        <p class="muted">${labels.verificationHint}</p>
         ${rows.length ? renderTable(rows, labels) : `<p class="muted">${labels.noVerificationData}</p>`}
 
         <h2>${labels.activeDates}</h2>
@@ -543,6 +544,8 @@ const STRINGS = {
     test: "Test",
     processing: "Processing...",
     verification: "Verification",
+    verificationHint:
+      "You can manually correct the editable cells below. Click Activate to replace the current Waste calendar with the corrected dates.",
     noVerificationData: "No data to verify.",
     activeDates: "Active pickup dates",
     noActiveDates: "No active pickup dates.",
@@ -577,6 +580,8 @@ const STRINGS = {
     test: "Test",
     processing: "Przetwarzanie...",
     verification: "Weryfikacja",
+    verificationHint:
+      "Pola poniżej są edytowalne. Możesz ręcznie poprawić dni, a potem kliknąć Aktywuj, aby zastąpić obecny kalendarz Odpady poprawionymi terminami.",
     noVerificationData: "Brak danych do weryfikacji.",
     activeDates: "Aktywne terminy",
     noActiveDates: "Brak aktywnych terminów.",

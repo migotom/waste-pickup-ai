@@ -70,6 +70,9 @@ Their state is the number of days until the next pickup, with attributes for the
 future dates. `sensor.waste_category_pickups` also exposes a full `pickups` attribute for cards/templates that
 need all categories in one entity.
 
+Re-activating a corrected draft replaces the current `calendar.waste_pickups` dates and resets notification
+deduplication for the new active schedule.
+
 ## Development Checks
 
 Run from the repository root:
