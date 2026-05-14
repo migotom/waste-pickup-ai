@@ -91,6 +91,9 @@ class WastePickupAIPanel extends HTMLElement {
       this._render();
       return;
     }
+    if (!window.confirm(labels.activateConfirm)) {
+      return;
+    }
     this._loading = true;
     this._error = "";
     this._message = "";
@@ -269,9 +272,25 @@ class WastePickupAIPanel extends HTMLElement {
           color: var(--primary-text-color);
           border: 1px solid var(--divider-color);
         }
+        button.danger {
+          background: var(--error-color, #db4437);
+          color: var(--text-primary-color);
+        }
         button:disabled {
           opacity: 0.55;
           cursor: progress;
+        }
+        .activation-warning {
+          margin: 14px 0 0;
+          padding: 12px 14px;
+          border: 1px solid var(--error-color, #db4437);
+          border-left-width: 5px;
+          border-radius: 8px;
+          background: var(--card-background-color);
+        }
+        .activation-warning strong {
+          display: block;
+          margin-bottom: 4px;
         }
         .settings {
           margin-top: 16px;
@@ -406,15 +425,17 @@ class WastePickupAIPanel extends HTMLElement {
             <ha-icon icon="mdi:upload"></ha-icon>
             ${labels.scan}
           </button>
-          <button id="activate" class="secondary" ${this._loading || !rows.length ? "disabled" : ""}>
-            <ha-icon icon="mdi:check"></ha-icon>
-            ${labels.activate}
+          <button id="activate" class="danger" ${this._loading || !rows.length ? "disabled" : ""}>
+            <ha-icon icon="mdi:calendar-sync"></ha-icon>
+            ${labels.replaceCalendar}
           </button>
           <button id="test" class="secondary">
             <ha-icon icon="mdi:bell-outline"></ha-icon>
             ${labels.test}
           </button>
         </div>
+
+        ${rows.length ? renderActivationWarning(labels) : ""}
 
         ${renderNotificationOptions(options, availableNotifyTargets, labels)}
 
@@ -440,6 +461,15 @@ class WastePickupAIPanel extends HTMLElement {
       input.addEventListener("change", () => this._saveCell(input));
     });
   }
+}
+
+function renderActivationWarning(labels) {
+  return `
+    <div class="activation-warning">
+      <strong>${labels.replaceCalendarTitle}</strong>
+      <span>${labels.replaceCalendarWarning}</span>
+    </div>
+  `;
 }
 
 function renderNotificationOptions(options, availableNotifyTargets, labels) {
@@ -540,12 +570,17 @@ const STRINGS = {
     image: "Image",
     year: "Year",
     scan: "Scan",
-    activate: "Activate",
+    replaceCalendar: "Replace calendar",
     test: "Test",
     processing: "Processing...",
     verification: "Verification",
     verificationHint:
-      "You can manually correct the editable cells below. Click Activate to replace the current Waste calendar with the corrected dates.",
+      "Edit the cells below before replacing the calendar. These values are the source of truth for the active Waste calendar.",
+    replaceCalendarTitle: "Replacing the calendar is destructive",
+    replaceCalendarWarning:
+      "The button Replace calendar saves the current Verification table as the new Waste calendar, removes previous pickup dates, and resets sent-notification tracking.",
+    activateConfirm:
+      "Replace the current Waste calendar with the dates from the Verification table? Previous pickup dates will be removed.",
     noVerificationData: "No data to verify.",
     activeDates: "Active pickup dates",
     noActiveDates: "No active pickup dates.",
@@ -554,7 +589,7 @@ const STRINGS = {
     selectFile: "Select a JPG, PNG, or WebP file.",
     scanDone: "Scan complete.",
     enterYear: "Enter the schedule year.",
-    scheduleActive: "Schedule activated.",
+    scheduleActive: "Waste calendar replaced.",
     testSent: "Test sent.",
     notifications: "Notifications",
     notificationTargetsHint: "Select Home Assistant notify services that should receive reminders.",
@@ -576,12 +611,17 @@ const STRINGS = {
     image: "Zdjęcie",
     year: "Rok",
     scan: "Skanuj",
-    activate: "Aktywuj",
+    replaceCalendar: "Nadpisz kalendarz",
     test: "Test",
     processing: "Przetwarzanie...",
     verification: "Weryfikacja",
     verificationHint:
-      "Pola poniżej są edytowalne. Możesz ręcznie poprawić dni, a potem kliknąć Aktywuj, aby zastąpić obecny kalendarz Odpady poprawionymi terminami.",
+      "Popraw pola poniżej przed nadpisaniem kalendarza. To właśnie wartości z tej tabeli zostaną zapisane jako aktywny kalendarz Odpady.",
+    replaceCalendarTitle: "Nadpisanie kalendarza usuwa poprzednie terminy",
+    replaceCalendarWarning:
+      "Przycisk Nadpisz kalendarz zapisze aktualną tabelę Weryfikacja jako nowy kalendarz Odpady, usunie poprzednie terminy odbioru i zresetuje historię wysłanych powiadomień.",
+    activateConfirm:
+      "Nadpisać obecny kalendarz Odpady terminami z tabeli Weryfikacja? Poprzednie terminy odbioru zostaną usunięte.",
     noVerificationData: "Brak danych do weryfikacji.",
     activeDates: "Aktywne terminy",
     noActiveDates: "Brak aktywnych terminów.",
@@ -590,7 +630,7 @@ const STRINGS = {
     selectFile: "Wybierz plik JPG, PNG albo WebP.",
     scanDone: "Skan zakończony.",
     enterYear: "Podaj rok harmonogramu.",
-    scheduleActive: "Harmonogram aktywny.",
+    scheduleActive: "Kalendarz Odpady został nadpisany.",
     testSent: "Wysłano test.",
     notifications: "Powiadomienia",
     notificationTargetsHint: "Wybierz usługi notify Home Assistanta, które mają dostawać przypomnienia.",
