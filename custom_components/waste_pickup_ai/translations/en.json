@@ -1,0 +1,54 @@
+{
+  "title": "Działdowo Waste Pickup AI",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Działdowo Waste Pickup AI",
+        "description": "Configure the waste schedule scanner for annual pickup tables used by Gmina Działdowo, Poland.",
+        "data": {
+          "openai_api_key": "OpenAI API key",
+          "openai_model": "OpenAI model",
+          "notify_targets": "Notify services",
+          "morning_time": "Morning reminder time",
+          "evening_time": "Evening reminder time",
+          "annual_scan_reminder_time": "Annual scan reminder time"
+        },
+        "data_description": {
+          "notify_targets": "Comma-separated notify service names, for example notify.mobile_app_iphone or mobile_app_iphone.",
+          "morning_time": "HH:MM, local Home Assistant time.",
+          "evening_time": "HH:MM, local Home Assistant time.",
+          "annual_scan_reminder_time": "HH:MM, used on January 1."
+        }
+      }
+    },
+    "error": {
+      "required": "This field is required.",
+      "invalid_time": "Use HH:MM time format."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Działdowo Waste Pickup AI options",
+        "data": {
+          "openai_api_key": "OpenAI API key",
+          "openai_model": "OpenAI model",
+          "notify_targets": "Notify services",
+          "morning_time": "Morning reminder time",
+          "evening_time": "Evening reminder time",
+          "annual_scan_reminder_time": "Annual scan reminder time"
+        },
+        "data_description": {
+          "notify_targets": "Comma-separated notify service names, for example notify.mobile_app_iphone or mobile_app_iphone.",
+          "morning_time": "HH:MM, local Home Assistant time.",
+          "evening_time": "HH:MM, local Home Assistant time.",
+          "annual_scan_reminder_time": "HH:MM, used on January 1."
+        }
+      }
+    },
+    "error": {
+      "required": "This field is required.",
+      "invalid_time": "Use HH:MM time format."
+    }
+  }
+}

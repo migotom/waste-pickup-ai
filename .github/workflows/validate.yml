@@ -1,0 +1,63 @@
+name: Validate
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 3 * * *"
+
+permissions:
+  contents: read
+
+jobs:
+  local:
+    name: Local checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Check for accidental secrets
+        run: python scripts/check_no_secrets.py
+
+      - name: Unit tests
+        run: python -m unittest discover -s tests
+
+      - name: Compile Python
+        run: python -m compileall custom_components tests scripts
+
+      - name: Check frontend JavaScript
+        run: node --check custom_components/waste_pickup_ai/frontend/waste-pickup-ai-panel.js
+
+      - name: Validate JSON files
+        run: |
+          python -m json.tool hacs.json >/dev/null
+          python -m json.tool custom_components/waste_pickup_ai/manifest.json >/dev/null
+          python -m json.tool custom_components/waste_pickup_ai/translations/en.json >/dev/null
+          python -m json.tool custom_components/waste_pickup_ai/translations/pl.json >/dev/null
+
+  hacs:
+    name: HACS validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: HACS validation
+        uses: hacs/action@main
+        with:
+          category: integration
+
+  hassfest:
+    name: Hassfest
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Hassfest validation
+        uses: home-assistant/actions/hassfest@master

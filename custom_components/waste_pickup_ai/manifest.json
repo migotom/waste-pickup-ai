@@ -1,0 +1,14 @@
+{
+  "domain": "waste_pickup_ai",
+  "name": "Działdowo Waste Pickup AI",
+  "codeowners": ["@migotom"],
+  "config_flow": true,
+  "dependencies": ["frontend", "http", "persistent_notification"],
+  "documentation": "https://github.com/migotom/waste-pickup-ai",
+  "integration_type": "service",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/migotom/waste-pickup-ai/issues",
+  "requirements": [],
+  "single_config_entry": true,
+  "version": "0.1.0"
+}

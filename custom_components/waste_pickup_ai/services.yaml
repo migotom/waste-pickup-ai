@@ -1,0 +1,63 @@
+scan_image:
+  name: Scan image
+  description: Scan a waste pickup schedule image from the Home Assistant configuration directory.
+  fields:
+    image_path:
+      required: true
+      selector:
+        text:
+      name: Image path
+      description: Path to a JPG, PNG, or WebP image in the Home Assistant filesystem.
+    year:
+      required: false
+      selector:
+        number:
+          min: 2000
+          max: 2100
+          mode: box
+      name: Schedule year
+      description: Optional fallback year if the model cannot read the year.
+
+set_cell:
+  name: Set schedule cell
+  description: Update one editable draft schedule cell.
+  fields:
+    row_index:
+      required: true
+      selector:
+        number:
+          min: 0
+          mode: box
+      name: Row index
+      description: Zero-based row index in the extracted schedule table.
+    month:
+      required: true
+      selector:
+        text:
+      name: Month
+      description: Month number or label, for example 1, I, or styczeń.
+    value:
+      required: false
+      selector:
+        text:
+      name: Days
+      description: Comma-separated pickup days for the selected cell.
+
+activate_schedule:
+  name: Activate schedule
+  description: Validate and activate the current draft schedule.
+  fields:
+    year:
+      required: false
+      selector:
+        number:
+          min: 2000
+          max: 2100
+          mode: box
+      name: Schedule year
+      description: Year to apply before validating and activating the draft schedule.
+
+send_test_notification:
+  name: Send test notification
+  description: Send a test reminder through the configured notify services.
+  fields: {}
