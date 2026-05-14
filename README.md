@@ -36,6 +36,14 @@ Until this repository is accepted into the HACS default catalog, install it as a
 
 HACS installs the integration under the Home Assistant configuration directory at `custom_components/waste_pickup_ai`.
 
+## Compatibility
+
+Supported Home Assistant versions:
+
+- `2025.5.0` or newer.
+
+This target is chosen to keep compatibility at least one year back from the current Home Assistant `2026.5` release line. HACS reads the minimum version from `hacs.json`, and the integration also refuses setup on older manually installed Home Assistant versions.
+
 ## Configuration
 
 Required:

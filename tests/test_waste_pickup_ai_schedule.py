@@ -3,6 +3,7 @@ from __future__ import annotations
 from datetime import date, datetime, time
 import unittest
 
+from custom_components.waste_pickup_ai.compat import version_at_least
 from custom_components.waste_pickup_ai.openai_client import extract_response_text
 from custom_components.waste_pickup_ai.schedule import (
     annual_scan_reminder_due,
@@ -19,6 +20,13 @@ from custom_components.waste_pickup_ai.schedule import (
 
 
 class WastePickupScheduleTest(unittest.TestCase):
+    def test_version_at_least_handles_home_assistant_release_versions(self) -> None:
+        self.assertTrue(version_at_least("2025.5.0", "2025.5.0"))
+        self.assertTrue(version_at_least("2026.4.3", "2025.5.0"))
+        self.assertTrue(version_at_least("2026.5.0", "2025.5.0"))
+        self.assertFalse(version_at_least("2025.4.9", "2025.5.0"))
+        self.assertFalse(version_at_least("unknown", "2025.5.0"))
+
     def test_parse_days_cell_accepts_common_ocr_separators(self) -> None:
         self.assertEqual(parse_days_cell("8, 29"), [8, 29])
         self.assertEqual(parse_days_cell("8;29 / 30"), [8, 29, 30])
@@ -200,4 +208,3 @@ class WastePickupScheduleTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-

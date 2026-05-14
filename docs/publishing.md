@@ -18,12 +18,13 @@ The first public distribution target is HACS as a custom repository. After real-
    - `waste-management`
    - `dzialdowo`
 5. Run all local checks.
-6. Push to GitHub.
-7. Confirm GitHub Actions pass:
+6. Confirm `hacs.json` and `MIN_HOME_ASSISTANT_VERSION` still match.
+7. Push to GitHub.
+8. Confirm GitHub Actions pass:
    - local validation
    - HACS validation
    - Hassfest
-8. Create a GitHub release, for example `v0.1.0`.
+9. Create a GitHub release, for example `v0.1.0`.
 
 ## HACS Custom Repository Install
 

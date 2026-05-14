@@ -24,6 +24,17 @@ node --check custom_components/waste_pickup_ai/frontend/waste-pickup-ai-panel.js
 
 The test suite intentionally keeps parser and scheduling logic free of Home Assistant runtime dependencies, so the core behavior can be tested without a full HA environment.
 
+## Compatibility Target
+
+The integration targets Home Assistant `2025.5.0` or newer.
+
+When raising the minimum version:
+
+1. Update `hacs.json`.
+2. Update `custom_components/waste_pickup_ai/const.py`.
+3. Update the README compatibility section.
+4. Bump the integration `version` in `manifest.json`.
+
 ## Dependency Policy
 
 The integration has no pip requirements. Use Home Assistant helpers and the Python standard library where possible.
