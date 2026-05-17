@@ -25,12 +25,20 @@ from .const import (
     CONF_ANNUAL_SCAN_REMINDER_TIME,
     CONF_EVENING_TIME,
     CONF_MORNING_TIME,
+    CONF_NOTIFICATION_CHANNEL,
+    CONF_NOTIFICATION_CRITICAL,
+    CONF_NOTIFICATION_SOUND_IOS,
+    CONF_NOTIFICATION_STICKY,
     CONF_NOTIFY_TARGETS,
     CONF_OPENAI_API_KEY,
     CONF_OPENAI_MODEL,
     DEFAULT_ANNUAL_SCAN_REMINDER_TIME,
     DEFAULT_EVENING_TIME,
     DEFAULT_MORNING_TIME,
+    DEFAULT_NOTIFICATION_CHANNEL,
+    DEFAULT_NOTIFICATION_CRITICAL,
+    DEFAULT_NOTIFICATION_SOUND_IOS,
+    DEFAULT_NOTIFICATION_STICKY,
     DEFAULT_OPENAI_MODEL,
     DOMAIN,
     MAX_IMAGE_BYTES,
@@ -165,6 +173,32 @@ class WastePickupRuntime:
             DEFAULT_ANNUAL_SCAN_REMINDER_TIME,
         )
 
+    @property
+    def notification_channel(self) -> str:
+        """Android Companion notification channel.
+
+        The user configures a custom sound on this channel inside the Android
+        system settings; the integration only declares the channel name.
+        """
+        value = self.options.get(CONF_NOTIFICATION_CHANNEL)
+        return str(value).strip() if value else DEFAULT_NOTIFICATION_CHANNEL
+
+    @property
+    def notification_sticky(self) -> bool:
+        """Whether Android notifications should be sticky (cannot swipe)."""
+        return bool(self.options.get(CONF_NOTIFICATION_STICKY, DEFAULT_NOTIFICATION_STICKY))
+
+    @property
+    def notification_sound_ios(self) -> str:
+        """iOS Companion sound filename (bundled .caf) or 'default'."""
+        value = self.options.get(CONF_NOTIFICATION_SOUND_IOS)
+        return str(value).strip() if value else DEFAULT_NOTIFICATION_SOUND_IOS
+
+    @property
+    def notification_critical(self) -> bool:
+        """Whether iOS notifications should be Critical (bypass DND/silent)."""
+        return bool(self.options.get(CONF_NOTIFICATION_CRITICAL, DEFAULT_NOTIFICATION_CRITICAL))
+
     @callback
     def async_add_update_listener(self, listener: Callable[[], None]) -> CALLBACK_TYPE:
         """Register an entity update listener."""
@@ -279,7 +313,13 @@ class WastePickupRuntime:
         return notification_options_response(self)
 
     async def async_handle_time(self, now: datetime) -> None:
-        """Handle scheduled notification checks."""
+        """Handle scheduled notification checks.
+
+        Pickup notifications are dispatched the day before pickup so the
+        operator has time to set out bins before early-morning collection.
+        See :func:`schedule.due_pickup_notifications` for the day-before
+        window logic.
+        """
         active_schedule = self.store.data.get("active_schedule")
         sent_keys = self.store.data.get("sent_notifications", {}).keys()
         targets = self.notify_targets
@@ -345,11 +385,7 @@ class WastePickupRuntime:
                 {
                     "title": title,
                     "message": message,
-                    "data": {
-                        "tag": tag,
-                        "group": "waste_pickup_ai",
-                        "url": f"/{PANEL_URL_PATH}",
-                    },
+                    "data": self._build_notification_data(tag),
                 },
                 blocking=False,
             )
@@ -365,6 +401,42 @@ class WastePickupRuntime:
             },
             blocking=False,
         )
+
+    def _build_notification_data(self, tag: str) -> dict[str, Any]:
+        """Compose the platform-aware ``data`` payload for HA Companion apps.
+
+        Android keys (channel/importance/priority/sticky/ttl/color/vibration)
+        and iOS keys (``push.sound``/``interruption-level``) coexist safely;
+        each platform ignores the other. Custom Android sounds are configured
+        per channel inside Android system settings — the integration only
+        declares the channel name. iOS sounds come from the Companion app
+        bundle (e.g. ``RisingChime.caf``, ``US-EN-Alexa-Trash-Pickup.caf``).
+        """
+        critical = self.notification_critical
+        return {
+            "tag": tag,
+            "group": "waste_pickup_ai",
+            "url": f"/{PANEL_URL_PATH}",
+            # Android Companion
+            "channel": self.notification_channel,
+            "importance": "high",
+            "priority": "high",
+            "ttl": 0,
+            "sticky": self.notification_sticky,
+            "color": "#FF6B35",
+            "notification_icon": "mdi:trash-can-outline",
+            "vibrationPattern": "500,200,500,200,500",
+            # iOS Companion
+            "push": {
+                "sound": {
+                    "name": self.notification_sound_ios,
+                    "critical": 1 if critical else 0,
+                    "volume": 1.0,
+                },
+                "interruption-level": "critical" if critical else "time-sensitive",
+                "badge": 1,
+            },
+        }
 
 
 async def async_register_runtime_hass_bits(hass: HomeAssistant) -> None:
@@ -632,6 +704,10 @@ def notification_options_response(runtime: WastePickupRuntime) -> dict[str, Any]
         "evening_time": runtime.evening_time.strftime("%H:%M"),
         "annual_scan_reminder_time": runtime.annual_scan_reminder_time.strftime("%H:%M"),
         "model": runtime.openai_model,
+        "notification_channel": runtime.notification_channel,
+        "notification_sticky": runtime.notification_sticky,
+        "notification_sound_ios": runtime.notification_sound_ios,
+        "notification_critical": runtime.notification_critical,
     }
 
 

@@ -11,13 +11,21 @@
           "notify_targets": "Cele powiadomień",
           "morning_time": "Godzina porannego przypomnienia",
           "evening_time": "Godzina wieczornego przypomnienia",
-          "annual_scan_reminder_time": "Godzina corocznego przypomnienia o skanie"
+          "annual_scan_reminder_time": "Godzina corocznego przypomnienia o skanie",
+          "notification_channel": "Kanał powiadomień (Android)",
+          "notification_sticky": "Powiadomienia przyklejone (Android)",
+          "notification_sound_ios": "Dźwięk powiadomień (iOS)",
+          "notification_critical": "Krytyczne powiadomienia (iOS)"
         },
         "data_description": {
           "notify_targets": "Wybierz jedną lub więcej usług notify. Zostaw puste, aby używać powiadomień trwałych Home Assistanta.",
-          "morning_time": "HH:MM, lokalny czas Home Assistanta.",
-          "evening_time": "HH:MM, lokalny czas Home Assistanta.",
-          "annual_scan_reminder_time": "HH:MM, używane 1 stycznia."
+          "morning_time": "HH:MM, lokalny czas Home Assistanta. Powiadomienie leci dzień przed odbiorem.",
+          "evening_time": "HH:MM, lokalny czas Home Assistanta. Powiadomienie leci dzień przed odbiorem.",
+          "annual_scan_reminder_time": "HH:MM, używane 1 stycznia.",
+          "notification_channel": "Nazwa kanału w aplikacji HA Companion na Androidzie. Po pierwszym powiadomieniu znajdziesz go w Ustawienia → Aplikacje → Home Assistant → Powiadomienia i tam ustawisz własny dźwięk, wibracje oraz pominięcie trybu Nie przeszkadzać.",
+          "notification_sticky": "Powiadomienia nie da się usunąć gestem (Android). Trzeba je odrzucić ręcznie.",
+          "notification_sound_ios": "Nazwa pliku dźwięku z aplikacji HA Companion na iOS, np. default, RisingChime.caf, SyntheticChime.caf lub US-EN-Alexa-Trash-Pickup.caf. Pełna lista w dokumentacji HA Companion.",
+          "notification_critical": "iOS: omija tryb cichy oraz Nie przeszkadzać. Wymaga włączenia w aplikacji HA Companion (Ustawienia → Companion App → Notifications → Critical Alerts)."
         }
       }
     },
@@ -36,13 +44,21 @@
           "notify_targets": "Cele powiadomień",
           "morning_time": "Godzina porannego przypomnienia",
           "evening_time": "Godzina wieczornego przypomnienia",
-          "annual_scan_reminder_time": "Godzina corocznego przypomnienia o skanie"
+          "annual_scan_reminder_time": "Godzina corocznego przypomnienia o skanie",
+          "notification_channel": "Kanał powiadomień (Android)",
+          "notification_sticky": "Powiadomienia przyklejone (Android)",
+          "notification_sound_ios": "Dźwięk powiadomień (iOS)",
+          "notification_critical": "Krytyczne powiadomienia (iOS)"
         },
         "data_description": {
           "notify_targets": "Wybierz jedną lub więcej usług notify. Zostaw puste, aby używać powiadomień trwałych Home Assistanta.",
-          "morning_time": "HH:MM, lokalny czas Home Assistanta.",
-          "evening_time": "HH:MM, lokalny czas Home Assistanta.",
-          "annual_scan_reminder_time": "HH:MM, używane 1 stycznia."
+          "morning_time": "HH:MM, lokalny czas Home Assistanta. Powiadomienie leci dzień przed odbiorem.",
+          "evening_time": "HH:MM, lokalny czas Home Assistanta. Powiadomienie leci dzień przed odbiorem.",
+          "annual_scan_reminder_time": "HH:MM, używane 1 stycznia.",
+          "notification_channel": "Nazwa kanału w aplikacji HA Companion na Androidzie. Po pierwszym powiadomieniu znajdziesz go w Ustawienia → Aplikacje → Home Assistant → Powiadomienia i tam ustawisz własny dźwięk, wibracje oraz pominięcie trybu Nie przeszkadzać.",
+          "notification_sticky": "Powiadomienia nie da się usunąć gestem (Android). Trzeba je odrzucić ręcznie.",
+          "notification_sound_ios": "Nazwa pliku dźwięku z aplikacji HA Companion na iOS, np. default, RisingChime.caf, SyntheticChime.caf lub US-EN-Alexa-Trash-Pickup.caf. Pełna lista w dokumentacji HA Companion.",
+          "notification_critical": "iOS: omija tryb cichy oraz Nie przeszkadzać. Wymaga włączenia w aplikacji HA Companion (Ustawienia → Companion App → Notifications → Critical Alerts)."
         }
       }
     },
