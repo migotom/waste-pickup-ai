@@ -11,13 +11,21 @@
           "notify_targets": "Notification targets",
           "morning_time": "Morning reminder time",
           "evening_time": "Evening reminder time",
-          "annual_scan_reminder_time": "Annual scan reminder time"
+          "annual_scan_reminder_time": "Annual scan reminder time",
+          "notification_channel": "Notification channel (Android)",
+          "notification_sticky": "Sticky notifications (Android)",
+          "notification_sound_ios": "Notification sound (iOS)",
+          "notification_critical": "Critical notifications (iOS)"
         },
         "data_description": {
           "notify_targets": "Select one or more notify services. Leave empty to use Home Assistant persistent notifications.",
-          "morning_time": "HH:MM, local Home Assistant time.",
-          "evening_time": "HH:MM, local Home Assistant time.",
-          "annual_scan_reminder_time": "HH:MM, used on January 1."
+          "morning_time": "HH:MM, local Home Assistant time. Notification fires the day before pickup.",
+          "evening_time": "HH:MM, local Home Assistant time. Notification fires the day before pickup.",
+          "annual_scan_reminder_time": "HH:MM, used on January 1.",
+          "notification_channel": "Channel name in the HA Companion app on Android. After the first notification you can find it under Settings → Apps → Home Assistant → Notifications and set a custom sound, vibration, and Do Not Disturb bypass there.",
+          "notification_sticky": "Notification cannot be swiped away (Android). Must be dismissed manually.",
+          "notification_sound_ios": "Sound filename bundled with the HA Companion app on iOS, e.g. default, RisingChime.caf, SyntheticChime.caf, or US-EN-Alexa-Trash-Pickup.caf. Full list: https://companion.home-assistant.io/docs/notifications/notification-sounds/",
+          "notification_critical": "iOS: bypasses silent mode and Do Not Disturb. Requires Critical Alerts to be enabled in the HA Companion app (Settings → Companion App → Notifications → Critical Alerts)."
         }
       }
     },
@@ -36,13 +44,21 @@
           "notify_targets": "Notification targets",
           "morning_time": "Morning reminder time",
           "evening_time": "Evening reminder time",
-          "annual_scan_reminder_time": "Annual scan reminder time"
+          "annual_scan_reminder_time": "Annual scan reminder time",
+          "notification_channel": "Notification channel (Android)",
+          "notification_sticky": "Sticky notifications (Android)",
+          "notification_sound_ios": "Notification sound (iOS)",
+          "notification_critical": "Critical notifications (iOS)"
         },
         "data_description": {
           "notify_targets": "Select one or more notify services. Leave empty to use Home Assistant persistent notifications.",
-          "morning_time": "HH:MM, local Home Assistant time.",
-          "evening_time": "HH:MM, local Home Assistant time.",
-          "annual_scan_reminder_time": "HH:MM, used on January 1."
+          "morning_time": "HH:MM, local Home Assistant time. Notification fires the day before pickup.",
+          "evening_time": "HH:MM, local Home Assistant time. Notification fires the day before pickup.",
+          "annual_scan_reminder_time": "HH:MM, used on January 1.",
+          "notification_channel": "Channel name in the HA Companion app on Android. After the first notification you can find it under Settings → Apps → Home Assistant → Notifications and set a custom sound, vibration, and Do Not Disturb bypass there.",
+          "notification_sticky": "Notification cannot be swiped away (Android). Must be dismissed manually.",
+          "notification_sound_ios": "Sound filename bundled with the HA Companion app on iOS, e.g. default, RisingChime.caf, SyntheticChime.caf, or US-EN-Alexa-Trash-Pickup.caf. Full list: https://companion.home-assistant.io/docs/notifications/notification-sounds/",
+          "notification_critical": "iOS: bypasses silent mode and Do Not Disturb. Requires Critical Alerts to be enabled in the HA Companion app (Settings → Companion App → Notifications → Critical Alerts)."
         }
       }
     },

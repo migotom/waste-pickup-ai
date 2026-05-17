@@ -10,7 +10,14 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .const import ATTR_CATEGORIES, ATTR_DATE, ATTR_DAYS_UNTIL, ATTR_YEAR, DOMAIN
+from .const import (
+    ATTR_CATEGORIES,
+    ATTR_DATE,
+    ATTR_DAYS_UNTIL,
+    ATTR_RELATIVE,
+    ATTR_YEAR,
+    DOMAIN,
+)
 from .schedule import next_pickup, next_pickups_by_category, schedule_status
 
 
@@ -29,6 +36,23 @@ async def async_setup_entry(
         ]
     )
     WasteCategorySensorManager(runtime, entry.entry_id, async_add_entities).setup()
+
+
+def format_relative(days_until: int | None) -> str:
+    """Return a Polish relative phrase for the day delta until pickup.
+
+    Notifications are sent the day before pickup (early-morning collection),
+    so days_until == 1 normally maps to the user-visible "jutro".
+    """
+    if days_until is None:
+        return "brak terminu"
+    if days_until == 0:
+        return "dzisiaj"
+    if days_until == 1:
+        return "jutro"
+    if days_until == 2:
+        return "pojutrze"
+    return f"za {days_until} dni"
 
 
 class _WastePickupSensorBase(SensorEntity):
@@ -78,6 +102,7 @@ class WasteNextPickupSensor(_WastePickupSensorBase):
             ATTR_DATE: event["date"],
             ATTR_CATEGORIES: event["categories"],
             ATTR_DAYS_UNTIL: event["days_until"],
+            ATTR_RELATIVE: format_relative(event["days_until"]),
         }
 
 
@@ -106,9 +131,13 @@ class WasteCategoryPickupsSensor(_WastePickupSensorBase):
 
 
 class WasteCategoryNextPickupSensor(_WastePickupSensorBase):
-    """Sensor showing days until the next pickup for one category."""
+    """Sensor showing days until the next pickup for one category.
 
-    _attr_native_unit_of_measurement = "d"
+    State is a Polish relative phrase ("dzisiaj"/"jutro"/"pojutrze"/"za N dni")
+    so the entity reads naturally in dashboards and notifications. The raw
+    integer remains available in the ``days_until`` attribute for automations
+    that need numeric comparisons.
+    """
 
     def __init__(
         self,
@@ -130,10 +159,12 @@ class WasteCategoryNextPickupSensor(_WastePickupSensorBase):
         return f"Odpady: {category}"
 
     @property
-    def native_value(self) -> int | None:
-        """Return days until the next pickup for this category."""
+    def native_value(self) -> str | None:
+        """Return the relative phrase for the next pickup for this category."""
         item = self._category_item()
-        return item["days_until"] if item and item["date"] else None
+        if not item or not item["date"]:
+            return None
+        return format_relative(item["days_until"])
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
@@ -146,6 +177,7 @@ class WasteCategoryNextPickupSensor(_WastePickupSensorBase):
             "category_key": item["category_key"],
             ATTR_DATE: item["date"],
             ATTR_DAYS_UNTIL: item["days_until"],
+            ATTR_RELATIVE: format_relative(item["days_until"]) if item["date"] else None,
             "future_dates": item["future_dates"],
             "display": _format_pickup(item) if item["date"] else "Brak przyszłego terminu",
         }
@@ -239,10 +271,4 @@ def _format_pickup(item: dict[str, Any]) -> str:
     )
     if date_value is None or days_until is None:
         return f"{item['category']}: brak przyszłego terminu"
-    if days_until == 0:
-        relative = "dzisiaj"
-    elif days_until == 1:
-        relative = "jutro"
-    else:
-        relative = f"za {days_until} dni"
-    return f"{item['category']}: {date_value} ({relative})"
+    return f"{item['category']}: {date_value} ({format_relative(days_until)})"

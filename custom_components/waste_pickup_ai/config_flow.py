@@ -14,12 +14,20 @@ from .const import (
     CONF_ANNUAL_SCAN_REMINDER_TIME,
     CONF_EVENING_TIME,
     CONF_MORNING_TIME,
+    CONF_NOTIFICATION_CHANNEL,
+    CONF_NOTIFICATION_CRITICAL,
+    CONF_NOTIFICATION_SOUND_IOS,
+    CONF_NOTIFICATION_STICKY,
     CONF_NOTIFY_TARGETS,
     CONF_OPENAI_API_KEY,
     CONF_OPENAI_MODEL,
     DEFAULT_ANNUAL_SCAN_REMINDER_TIME,
     DEFAULT_EVENING_TIME,
     DEFAULT_MORNING_TIME,
+    DEFAULT_NOTIFICATION_CHANNEL,
+    DEFAULT_NOTIFICATION_CRITICAL,
+    DEFAULT_NOTIFICATION_SOUND_IOS,
+    DEFAULT_NOTIFICATION_STICKY,
     DEFAULT_OPENAI_MODEL,
     DOMAIN,
 )
@@ -54,6 +62,22 @@ class WastePickupAIConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                             CONF_ANNUAL_SCAN_REMINDER_TIME
                         )
                         or DEFAULT_ANNUAL_SCAN_REMINDER_TIME,
+                        CONF_NOTIFICATION_CHANNEL: (
+                            user_input.get(CONF_NOTIFICATION_CHANNEL)
+                            or DEFAULT_NOTIFICATION_CHANNEL
+                        ),
+                        CONF_NOTIFICATION_STICKY: bool(
+                            user_input.get(CONF_NOTIFICATION_STICKY, DEFAULT_NOTIFICATION_STICKY)
+                        ),
+                        CONF_NOTIFICATION_SOUND_IOS: (
+                            user_input.get(CONF_NOTIFICATION_SOUND_IOS)
+                            or DEFAULT_NOTIFICATION_SOUND_IOS
+                        ),
+                        CONF_NOTIFICATION_CRITICAL: bool(
+                            user_input.get(
+                                CONF_NOTIFICATION_CRITICAL, DEFAULT_NOTIFICATION_CRITICAL
+                            )
+                        ),
                     },
                 )
 
@@ -89,6 +113,14 @@ class WastePickupAIOptionsFlow(config_entries.OptionsFlow):
                         **user_input,
                         CONF_NOTIFY_TARGETS: _normalize_notify_targets_input(
                             user_input.get(CONF_NOTIFY_TARGETS)
+                        ),
+                        CONF_NOTIFICATION_STICKY: bool(
+                            user_input.get(CONF_NOTIFICATION_STICKY, DEFAULT_NOTIFICATION_STICKY)
+                        ),
+                        CONF_NOTIFICATION_CRITICAL: bool(
+                            user_input.get(
+                                CONF_NOTIFICATION_CRITICAL, DEFAULT_NOTIFICATION_CRITICAL
+                            )
                         ),
                     },
                 )
@@ -141,6 +173,30 @@ def _schema(hass: HomeAssistant | None, defaults: dict[str, Any] | None = None) 
                     DEFAULT_ANNUAL_SCAN_REMINDER_TIME,
                 ),
             ): str,
+            vol.Optional(
+                CONF_NOTIFICATION_CHANNEL,
+                default=defaults.get(
+                    CONF_NOTIFICATION_CHANNEL, DEFAULT_NOTIFICATION_CHANNEL
+                ),
+            ): str,
+            vol.Optional(
+                CONF_NOTIFICATION_STICKY,
+                default=bool(
+                    defaults.get(CONF_NOTIFICATION_STICKY, DEFAULT_NOTIFICATION_STICKY)
+                ),
+            ): selector.BooleanSelector(),
+            vol.Optional(
+                CONF_NOTIFICATION_SOUND_IOS,
+                default=defaults.get(
+                    CONF_NOTIFICATION_SOUND_IOS, DEFAULT_NOTIFICATION_SOUND_IOS
+                ),
+            ): str,
+            vol.Optional(
+                CONF_NOTIFICATION_CRITICAL,
+                default=bool(
+                    defaults.get(CONF_NOTIFICATION_CRITICAL, DEFAULT_NOTIFICATION_CRITICAL)
+                ),
+            ): selector.BooleanSelector(),
         }
     )
 
