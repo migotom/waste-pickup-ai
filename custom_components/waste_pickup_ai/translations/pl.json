@@ -24,7 +24,7 @@
           "annual_scan_reminder_time": "HH:MM, używane 1 stycznia.",
           "notification_channel": "Nazwa kanału w aplikacji HA Companion na Androidzie. Po pierwszym powiadomieniu znajdziesz go w Ustawienia → Aplikacje → Home Assistant → Powiadomienia i tam ustawisz własny dźwięk, wibracje oraz pominięcie trybu Nie przeszkadzać.",
           "notification_sticky": "Powiadomienia nie da się usunąć gestem (Android). Trzeba je odrzucić ręcznie.",
-          "notification_sound_ios": "Nazwa pliku dźwięku z aplikacji HA Companion na iOS, np. default, RisingChime.caf, SyntheticChime.caf lub US-EN-Alexa-Trash-Pickup.caf. Pełna lista: https://companion.home-assistant.io/docs/notifications/notification-sounds/",
+          "notification_sound_ios": "Nazwa pliku dźwięku z aplikacji HA Companion na iOS, np. default, RisingChime.caf, SyntheticChime.caf lub US-EN-Alexa-Trash-Pickup.caf. Pełna lista w dokumentacji HA Companion.",
           "notification_critical": "iOS: omija tryb cichy oraz Nie przeszkadzać. Wymaga włączenia w aplikacji HA Companion (Ustawienia → Companion App → Notifications → Critical Alerts)."
         }
       }
@@ -57,7 +57,7 @@
           "annual_scan_reminder_time": "HH:MM, używane 1 stycznia.",
           "notification_channel": "Nazwa kanału w aplikacji HA Companion na Androidzie. Po pierwszym powiadomieniu znajdziesz go w Ustawienia → Aplikacje → Home Assistant → Powiadomienia i tam ustawisz własny dźwięk, wibracje oraz pominięcie trybu Nie przeszkadzać.",
           "notification_sticky": "Powiadomienia nie da się usunąć gestem (Android). Trzeba je odrzucić ręcznie.",
-          "notification_sound_ios": "Nazwa pliku dźwięku z aplikacji HA Companion na iOS, np. default, RisingChime.caf, SyntheticChime.caf lub US-EN-Alexa-Trash-Pickup.caf. Pełna lista: https://companion.home-assistant.io/docs/notifications/notification-sounds/",
+          "notification_sound_ios": "Nazwa pliku dźwięku z aplikacji HA Companion na iOS, np. default, RisingChime.caf, SyntheticChime.caf lub US-EN-Alexa-Trash-Pickup.caf. Pełna lista w dokumentacji HA Companion.",
           "notification_critical": "iOS: omija tryb cichy oraz Nie przeszkadzać. Wymaga włączenia w aplikacji HA Companion (Ustawienia → Companion App → Notifications → Critical Alerts)."
         }
       }
